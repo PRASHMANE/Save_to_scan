@@ -1,5 +1,6 @@
 import streamlit as st
 from add_info import add_info
+from scan import scan
 
 # --- Page setup ---
 st.set_page_config(page_title="Dark Theme App", layout="wide")
@@ -128,7 +129,8 @@ elif st.session_state.page == "addinfo":
 
 elif st.session_state.page == "scanner":
     st.title("📷 Scanner")
-    st.write("This is your **QR/Camera Scanner** module area.")
+    #st.write("This is your **QR/Camera Scanner** module area.")
+    scan()
 
 elif st.session_state.page == "chatbot":
     st.title("💬 Chat Bot")

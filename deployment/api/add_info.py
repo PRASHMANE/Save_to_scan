@@ -75,7 +75,7 @@ def add_info():
     if button and all([name, Eme_contact1, Eme_contact2, Eme_contact3, blood_group, medical, ad ,insurance ,dob]):
         with open("mane1.png","rb") as file:
             btn = st.download_button(
-                label="Download Image",
+                label="Download QR Code",
                 data=file,
                 file_name=f"{name}.png",
                 mime="image/png"
