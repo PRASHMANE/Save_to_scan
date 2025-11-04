@@ -10,7 +10,9 @@ from decode import decode_img
 
 #st.set_page_config(page_title="📸 Simple Camera")
 
-#st.title("📸 Take a Photo")
+
+
+
 
 def scan():
 # Streamlit's built-in camera input works on phone too!
@@ -22,5 +24,10 @@ def scan():
         st.success("✅ Photo captured successfully!")
         img_path = "test.png"
         img.save(img_path)
-        decode_img()
-    
+        decoded=decode_img()
+        print("Decoded Data:", decoded)
+        return decoded
+
+
+
+# --- Page 2: Result Page ---

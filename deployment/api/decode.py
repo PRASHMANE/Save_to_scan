@@ -64,10 +64,12 @@ def decode_img():
                 patient_info = json.loads(data)
                 print("✅ Patient JSON QR:")
                 print(json.dumps(patient_info, indent=4))
+                return data
             except json.JSONDecodeError:
                 print("⚠️ Invalid JSON format.")
         elif data.isdigit():
             print("✅ Patient ID QR Detected:", data)
+            #return data
         else:
             print("ℹ️ Unknown QR format.")
     else:

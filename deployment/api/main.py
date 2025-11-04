@@ -129,8 +129,27 @@ elif st.session_state.page == "addinfo":
 
 elif st.session_state.page == "scanner":
     st.title("📷 Scanner")
-    #st.write("This is your **QR/Camera Scanner** module area.")
-    scan()
+
+    # Run scan() only if data not already captured
+    if "decoded_data" not in st.session_state:
+        decoded = scan()
+        if decoded is not None:
+            st.session_state.decoded_data = decoded
+            st.success("✅ QR decoded successfully!")
+    else:
+        st.info("✅ QR data already captured — click below to view info.")
+
+    # Show the View Info button when decoded data exists
+    if "decoded_data" in st.session_state:
+        if st.button("View Info", use_container_width=True):
+            st.query_params["page"] = "result"
+            st.rerun()
+
+
+
+        #go_to_result(decoded)
+    #else:
+        #st.error("⚠️ No QR code detected. Try again!")
 
 elif st.session_state.page == "chatbot":
     st.title("💬 Chat Bot")
@@ -138,9 +157,23 @@ elif st.session_state.page == "chatbot":
     if user_input:
         st.write(f"🤖 Bot: You said '{user_input}' — reply coming soon!")
 
+
+elif st.session_state.page == "result":
+    st.title("✅ Decoded Information")
+
+    decoded = st.session_state.get("decoded_data", {})
+    st.json(decoded)
+
+    #if st.button("🔙 Scan Another"):
+     #   st.query_params["page"] = "Scanner"
+        #st.rerun()
+
+
+
 # --- Active icon handler ---
 def icon_class(page):
     return "material-symbols-outlined active" if st.session_state.page == page else "material-symbols-outlined"
+
 
 home_icon = icon_class("home")
 addinfo_icon = icon_class("addinfo")
