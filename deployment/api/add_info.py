@@ -88,10 +88,11 @@ def add_info():
     # ---- Generate QR Code ----
     button=st.button("Generate QR Code")
     if button:
-        if all([name, Eme_contact1, Eme_contact2, Eme_contact3, blood_group, medical, ad ,insurance ,dob]) and uploaded_file is not None:
+        if all([name,phone,Eme_contact1, Eme_contact2, Eme_contact3, blood_group, medical, ad ,insurance ,dob]) and uploaded_file is not None:
             # Combine data
             patient_info = {
                 "Name": name,
+                "Phone": phone,
                 "Emergency_contact1": Eme_contact1,
                 "Emergency_contact2": Eme_contact2,
                 "Emergency_contact3": Eme_contact3,
