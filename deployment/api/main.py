@@ -1,7 +1,8 @@
 import streamlit as st
-from add_info import add_info
+from add_info1 import add_info
 from scan import scan
 from result import result
+from home import home
 
 # --- Page setup ---
 st.set_page_config(page_title="Scan To Save", layout="wide")
@@ -328,9 +329,9 @@ if "page" in query_params:
 
 # --- Content ---
 if st.session_state.page == "home":
-    st.title("🏠 Home")
-    st.write("Welcome to the **complete dark theme** dashboard 🌑✨")
-
+    #st.title("🏠 Home")
+    #st.write("Welcome to the **complete dark theme** dashboard 🌑✨")
+    home()
 elif st.session_state.page == "addinfo":
     add_info()
 
@@ -371,46 +372,87 @@ elif st.session_state.page == "result":
 
     st.title("Person Details")
 
+    # --- Heartbeat Red Theme + Glow for Photo ---
     st.markdown("""
     <style>
+        /* === GLOBAL BACKGROUND === */
+        body {
+            background: radial-gradient(circle at top, #0a0000, #1a0000, #330000, #0d0d0d);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* === PAGE TITLE === */
+        h1, h2, h3 {
+            color: #ff4d4d;
+            text-shadow: 0 0 15px #ff0000;
+            animation: heartbeat 2s infinite;
+        }
+
+        /* === INFO BOXES === */
         .info-box {
-            background: linear-gradient(145deg, #111827, #1e293b);
+            background: linear-gradient(145deg, #1a0000, #330000);
             color: #ffffff;
             padding: 20px 25px;
             border-radius: 12px;
             margin-bottom: 15px;
-            box-shadow: 0 0 15px rgba(59,130,246,0.3);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .info-box:hover {
             transform: scale(1.02);
-            box-shadow: 0 0 25px rgba(59,130,246,0.6);
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.6);
         }
 
+        /* === TITLES === */
         .info-title {
             font-size: 18px;
             font-weight: bold;
-            color: #60a5fa;  /* Bright blue for labels */
+            color: #ff6666;
+            text-shadow: 0 0 8px #ff1a1a, 0 0 15px #ff3333;
             margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
-                
-        .info-title {
-            color: #00f5ff;
-            font-weight: bold;
-            font-size: 18px;
-            text-shadow: 0 0 8px #00f5ff, 0 0 15px #00f5ff;
-        }
 
-
-
+        /* === VALUES === */
         .info-value {
             font-size: 16px;
-            color: #fbbf24;  /* Gold-yellow for values */
+            color: #ffcc66;
             font-weight: 500;
             letter-spacing: 0.5px;
+        }
+
+        /* === CENTER IMAGE === */
+        .center-img {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .center-img img {
+            border-radius: 20px;
+            width: 250px;
+            height: auto;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.5), 0 0 50px rgba(255, 0, 0, 0.3);
+            animation: photoGlow 2s infinite;
+        }
+
+        /* === ANIMATIONS === */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.03); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes photoGlow {
+            0% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.3), 0 0 40px rgba(255, 0, 0, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(255, 0, 0, 0.6), 0 0 80px rgba(255, 0, 0, 0.4); }
+            100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.3), 0 0 40px rgba(255, 0, 0, 0.2); }
         }
     </style>
     """, unsafe_allow_html=True)
@@ -457,6 +499,9 @@ elif st.session_state.page == "result":
                 </div>
             """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+
+
+
 
 
 
