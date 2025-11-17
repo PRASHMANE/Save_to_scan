@@ -81,7 +81,7 @@ if st.button("➡️ Get Answer"):
             # Prompt template
             # -----------------------------
             prompt = ChatPromptTemplate.from_template("""
-You are a first-aid expert. Use the following context to provide a **clear, step-by-step explanation** on how to save the person. Keep each step short and actionable.
+Use the following context to answer the question in step by step with short explanation who to save the person .
 
 Context:
 {context}
@@ -89,8 +89,7 @@ Context:
 Question:
 {question}
 
-Answer (Step-by-step):
-1.
+Answer:
 """)
 
             # -----------------------------

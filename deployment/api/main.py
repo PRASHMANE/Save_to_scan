@@ -3,7 +3,18 @@ from add_info1 import add_info
 from scan import scan
 from result import result
 from home import home
-
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+import re
+import os
+from dotenv import load_dotenv
+import torch
 # --- Page setup ---
 st.set_page_config(page_title="Scan To Save", layout="wide")
 
@@ -310,11 +321,80 @@ st.markdown("""
     [class*="stAppViewContainer"] {
         background-color: #0e0e10;
     }
+            
+    .custom-text {
+    font-size: 18px;              /* Text size */
+    color: #00FF00;               /* Text color (bright green) */
+    background-color: #1E1E1E;    /* Dark background */
+    padding: 10px 15px;           /* Padding inside bubble */
+    border-radius: 10px;          /* Rounded corners */
+    border: 1px solid #00FF00; 
     </style>
 """, unsafe_allow_html=True)
 
+load_dotenv()
+api_key = os.getenv("API_KEY")
+os.environ["GOOGLE_API_KEY"] = api_key
 
 
+def clean_asterisks(text: str) -> str:
+    cleaned_text = text.replace("*", "")
+    cleaned_text = re.sub(r"^\s+", "", cleaned_text, flags=re.MULTILINE)
+    return cleaned_text
+
+llm = ChatGoogleGenerativeAI(
+                model="gemini-2.5-pro",
+                temperature=0,
+                api_key=api_key
+            )
+
+loader = PyPDFLoader("/Users/prashmane/Documents/Almabetter/a.pdf")
+documents = loader.load()
+
+text_splitter = RecursiveCharacterTextSplitter(
+                chunk_size=500,
+                chunk_overlap=100
+            )
+chunks = text_splitter.split_documents(documents)
+
+
+#from langchain.embeddings import HuggingFaceEmbeddings
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    model_kwargs={"device": device}
+)
+
+db = Chroma.from_documents(
+                documents=chunks,
+                embedding=embeddings,
+                collection_name="rag_pdf",
+                persist_directory="./chroma_store"
+            )
+
+retriever = db.as_retriever()
+
+
+prompt = ChatPromptTemplate.from_template("""
+You are a first-aid expert. Use the following context to provide a **clear, step-by-step explanation** on how to save the person. Keep each step short and actionable.
+
+Context:
+{context}
+
+Question:
+{question}
+
+Answer (Step-by-step):
+1.
+""")
+rag_chain = (
+                {"context": retriever, "question": RunnablePassthrough()}
+                | prompt
+                | llm
+                | StrOutputParser()
+            )
 
 # --- Initialize page state ---
 if "page" not in st.session_state:
@@ -360,10 +440,19 @@ elif st.session_state.page == "scanner":
         #st.error("⚠️ No QR code detected. Try again!")
 
 elif st.session_state.page == "chatbot":
-    st.title("💬 Chat Bot")
-    user_input = st.text_input("Ask something:")
-    if user_input:
-        st.write(f"🤖 Bot: You said '{user_input}' — reply coming soon!")
+    st.title("❤️ Chat Bot")
+    user_input = st.text_input("Ask your question here:", placeholder="Type your question...")
+
+    if st.button("➡️ Get Answer"):
+        if not user_input.strip():
+            st.warning("Please type a question!")
+        else:
+            with st.spinner("Fetching answer... ⏳"):
+                ans = rag_chain.invoke(user_input)
+                ans = clean_asterisks(ans)
+                st.markdown("**Answer:**")
+                #st.text(ans)
+                st.markdown('<p class="custom-text">{}</p>'.format(ans), unsafe_allow_html=True)
 
 
 elif st.session_state.page == "result":
