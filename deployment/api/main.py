@@ -15,6 +15,11 @@ import re
 import os
 from dotenv import load_dotenv
 import torch
+from streamlit_current_location import current_position
+from src.models.ai import react_agent
+from whatapp import alert
+
+
 # --- Page setup ---
 st.set_page_config(page_title="Scan To Save", layout="wide")
 
@@ -396,6 +401,13 @@ rag_chain = (
                 | StrOutputParser()
             )
 
+pos = current_position()
+if pos:
+        #st.write(pos)
+    lat = pos["latitude"]
+    lon = pos["longitude"]
+                    #st.map([{"lat": lat, "lon": lon}])
+    print(lat,lon)
 # --- Initialize page state ---
 if "page" not in st.session_state:
     st.session_state.page = "home"
@@ -455,11 +467,12 @@ elif st.session_state.page == "chatbot":
                 st.markdown('<p class="custom-text">{}</p>'.format(ans), unsafe_allow_html=True)
 
 
+
 elif st.session_state.page == "result":
     import json
     from PIL import Image
 
-    st.title("Person Details")
+    #st.title("Person Details")
 
     # --- Heartbeat Red Theme + Glow for Photo ---
     st.markdown("""
@@ -588,11 +601,126 @@ elif st.session_state.page == "result":
                 </div>
             """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(f"{data['Name']} in Emergency ?")
+    col1, col2 = st.columns(2)
+
+        # Button in column 1
+    with col1:
+            if st.button("Yes"):
+                msg=f"🆘 *Emergency Alert* 🆘 *{data['Name']}* met with an emergency/accident. Please call back on *{data['Phone']}* for *Immediate Help*."
+                #alert(msg,data['Emergency_contact1'],data['Emergency_contact2'],data['Emergency_contact3'])
+        
+                ans=react_agent(f"Get my nearest hospital with phone number for {lat},{lon} from india")
+                #ans=json.loads(ans)
+                print(ans)
+                if "ans1" not in st.session_state:
+                        #ans=json.loads(ans)
+                        if ans is not None:
+                            #st.session_state.ans1=ans
+                            st.session_state["ans1"]=ans
+
+                        
+                #alert(msg,data['Emergency_contact1'])
+                #react_agent(f"Get my nearest hospital with phone number for {23.344189719267245},{75.04893578448504}")
+
+                #st.success("You clicked Button 1!")
+                st.query_params["page"] = "yes"
+                st.rerun()
 
 
+            if st.button("No"):
+                st.query_params["page"] = "home"
+                st.rerun()
 
+elif st.session_state.page == "yes":
+    st.markdown("""
+    <style>
+    .info-card {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+        margin-top: 20px;
+        border-left: 6px solid #4CAF50; 
+        font-family: 'Arial', sans-serif;
+    }
 
+    .info-card h3 {
+        margin: 0;
+        padding: 0;
+        font-size: 22px;
+        color: #2e7d32;
+    }
 
+    .info-item {
+        color: #000000;
+        margin-top: 10px;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    .info-item b {
+        color: #000000;
+        display: inline-block;
+        width: 90px;
+    }
+
+    .link-btn {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 10px 16px;
+        background: #4CAF50;
+        color: white !important;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 15px;
+        transition: background-color 0.3s;
+    }
+
+    .link-btn:hover {
+        background-color: #45a049;
+    }
+    
+    .info-value {
+    color: #000000 !important;
+    font-weight: 600;
+    }
+                
+    </style>
+    """, unsafe_allow_html=True)
+
+    # ------------------------------------------------
+    # Your data
+    # ------------------------------------------------
+    ans = st.session_state.get("ans1", None)
+
+    if ans is not None:
+
+        hospital_name = str(ans.get('hospital_name', 'N/A'))
+        phone_number = str(ans.get('phone_number', 'N/A'))
+        lat_str = str(ans.get('lat', 'N/A'))
+        lon_str = str(ans.get('lon', 'N/A'))
+        google_maps_link = str(ans.get('google_maps_link', '#'))
+
+        st.markdown(f"""
+            <div class="info-card">
+                <h3><span class="info-value">{hospital_name}</span></h3>
+                <div class="info-item"><b>Phone:</b> <span class="info-value">{phone_number}</span></div>
+                <div class="info-item"><b>Latitude:</b> <span class="info-value">{lat_str}</span></div>
+                <div class="info-item"><b>Longitude:</b> <span class="info-value">{lon_str}</span></div>
+                <a class="link-btn" href="{google_maps_link}" target="_blank">
+                    📍 Open in Google Maps
+                </a>
+            </div>
+        """, unsafe_allow_html=True)
+
+        # Use float only for st.map()
+        #lat = float(ans["lat"])
+        #lon = float(ans["lon"])
+        #st.map([{"lat": lat, "lon": lon}])
+
+    else:
+        st.info("Hospital data is not yet available.")
 
 
 

@@ -1,6 +1,10 @@
 import streamlit as st
 from PIL import Image
 import json 
+from whatapp import alert
+from streamlit_current_location import current_position
+from src.models.ai import react_agent
+
 
 # ---- Page Setup ----
 #st.set_page_config(page_title="Patient Info", layout="centered")
@@ -85,3 +89,37 @@ def result(data):
                     <div class="info-value">{value}</div>
                 </div>
             """, unsafe_allow_html=True)
+
+        st.markdown(f"{data['Name']} in Emergency ?")
+        col1, col2 = st.columns(2)
+
+        # Button in column 1
+        with col1:
+            if st.button("Yes"):
+                msg=f"🆘 *Emergency Alert* 🆘 *{data['Name']}* met with an emergency/accident. Please call back on *{data['Phone']}* for *Immediate Help*."
+                alert(msg,data['Emergency_contact1'])
+                pos = current_position()
+                if pos:
+        #st.write(pos)
+                    lat = pos["latitude"]
+                    lon = pos["longitude"]
+                    #st.map([{"lat": lat, "lon": lon}])
+                    print(lat,lon)
+                    ans=react_agent(f"Get my nearest hospital with phone number for {lat},{lon}")
+                        
+                    
+                else:
+                        print("Location not available or permission denied.")
+                #alert(msg,data['Emergency_contact1'],data['Emergency_contact2'],data['Emergency_contact3'])
+                #react_agent(f"Get my nearest hospital with phone number for {23.344189719267245},{75.04893578448504}")
+
+                #st.success("You clicked Button 1!")
+                st.query_params["page"] = "yes"
+                st.rerun()
+
+
+        # Button in column 2
+        with col2:
+            if st.button("No"):
+                st.query_params["page"] = "home"
+                st.rerun()

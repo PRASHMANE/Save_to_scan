@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h3>Click below to get GPS</h3>
+
+<button onclick="getLocation()" style="
+padding:10px 20px;
+background-color:#4CAF50;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+">
+📍 Get My GPS Location
+</button>
+
+<p id="output"></p>
+
+<script>
+function getLocation() {
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+
+            document.getElementById("output").innerHTML =
+                "Latitude: " + lat + "<br>Longitude: " + lon;
+
+            // Send location back to Streamlit
+            window.parent.postMessage(
+                { type: "gps", lat: lat, lon: lon },
+                "*"
+            );
+        },
+        (err) => {
+            alert("Location permission denied!");
+        }
+    );
+}
+</script>
+</body>
+</html>

@@ -96,5 +96,5 @@ def scan():
         img.save(img_path)
 
         decoded = decode_img()
-        st.markdown(f"<h4>📜 Decoded Data:</h4><div style='color:#ff6666;'>{decoded}</div>", unsafe_allow_html=True)
+        #st.markdown(f"<h4>📜 Decoded Data:</h4><div style='color:#ff6666;'>{decoded}</div>", unsafe_allow_html=True)
         return decoded
